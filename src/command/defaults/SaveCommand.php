@@ -35,7 +35,10 @@ class SaveCommand extends VanillaCommand{
 	public function __construct(){
 		parent::__construct(
 			"save-all",
-			KnownTranslationFactory::pocketmine_command_save_description()
+			KnownTranslationFactory::pocketmine_command_save_description(),
+			null,
+			[],
+			[[]]
 		);
 		$this->setPermission(DefaultPermissionNames::COMMAND_SAVE_PERFORM);
 	}

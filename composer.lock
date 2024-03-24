@@ -200,16 +200,16 @@
         },
         {
             "name": "pocketmine/bedrock-protocol",
-            "version": "29.0.0+bedrock-1.20.70",
+            "version": "v1+29.0.0+bedrock-1.20.70",
             "source": {
                 "type": "git",
-                "url": "https://github.com/pmmp/BedrockProtocol.git",
-                "reference": "8d63f39bb2cded3d3e578fd3cf7bc769b9674857"
+                "url": "https://github.com/NeroLunaKR/BedrockProtocol.git",
+                "reference": "cd673cf8d9d9c6581a1fa782712b9b6926e7e6b5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/pmmp/BedrockProtocol/zipball/8d63f39bb2cded3d3e578fd3cf7bc769b9674857",
-                "reference": "8d63f39bb2cded3d3e578fd3cf7bc769b9674857",
+                "url": "https://api.github.com/repos/NeroLunaKR/BedrockProtocol/zipball/cd673cf8d9d9c6581a1fa782712b9b6926e7e6b5",
+                "reference": "cd673cf8d9d9c6581a1fa782712b9b6926e7e6b5",
                 "shasum": ""
             },
             "require": {
@@ -239,10 +239,10 @@
             ],
             "description": "An implementation of the Minecraft: Bedrock Edition protocol in PHP",
             "support": {
-                "issues": "https://github.com/pmmp/BedrockProtocol/issues",
-                "source": "https://github.com/pmmp/BedrockProtocol/tree/29.0.0+bedrock-1.20.70"
+                "issues": "https://github.com/NeroLunaKR/BedrockProtocol/issues",
+                "source": "https://github.com/NeroLunaKR/BedrockProtocol/tree/v1+29.0.0+bedrock-1.20.70"
             },
-            "time": "2024-03-13T14:35:54+00:00"
+            "time": "2024-03-24T14:35:54+00:00"
         },
         {
             "name": "pocketmine/binaryutils",

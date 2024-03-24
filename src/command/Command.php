@@ -29,6 +29,9 @@ namespace pocketmine\command;
 use pocketmine\command\utils\CommandException;
 use pocketmine\lang\KnownTranslationFactory;
 use pocketmine\lang\Translatable;
+use pocketmine\network\mcpe\protocol\AvailableCommandsPacket;
+use pocketmine\network\mcpe\protocol\types\command\CommandData;
+use pocketmine\network\mcpe\protocol\types\command\CommandParameter;
 use pocketmine\permission\PermissionManager;
 use pocketmine\Server;
 use pocketmine\utils\BroadcastLoggerForwarder;
@@ -59,16 +62,20 @@ abstract class Command{
 	/** @var string[] */
 	private array $permission = [];
 	private ?string $permissionMessage = null;
+	
+	/** @var CommandParameter[] */
+	private array $overloads = [];
 
 	/**
 	 * @param string[] $aliases
 	 */
-	public function __construct(string $name, Translatable|string $description = "", Translatable|string|null $usageMessage = null, array $aliases = []){
+	public function __construct(string $name, Translatable|string $description = "", Translatable|string|null $usageMessage = null, array $aliases = [], array $overload = null){
 		$this->name = $name;
 		$this->setLabel($name);
 		$this->setDescription($description);
 		$this->usageMessage = $usageMessage ?? ("/" . $name);
 		$this->setAliases($aliases);
+		$this->overloads = (!empty($overloads)) ? $overloads : [[CommandParameter::standard("args", AvailableCommandsPacket::ARG_TYPE_RAWTEXT, 0, true)]];
 	}
 
 	/**
@@ -219,6 +226,63 @@ abstract class Command{
 
 	public function setUsage(Translatable|string $usage) : void{
 		$this->usageMessage = $usage;
+	}
+
+	/**
+	 * @param CommandParameter $parameter
+	 * @param int              $overloadIndex
+	 */
+	public function addParameter(CommandParameter $parameter, int $overloadIndex = 0) : void{
+		$this->commandData->overloads[$overloadIndex][] = $parameter;
+	}
+
+	/**
+	 * @param CommandParameter $parameter
+	 * @param int              $parameterIndex
+	 * @param int              $overloadIndex
+	 */
+	public function setParameter(CommandParameter $parameter, int $parameterIndex, int $overloadIndex = 0) : void{
+		$this->overloads[$overloadIndex][$parameterIndex] = $parameter;
+	}
+
+	/**
+	 * @param CommandParameter[] $parameters
+	 * @param int                $overloadIndex
+	 */
+	public function setParameters(array $parameters, int $overloadIndex = 0) : void{
+		$this->overloads[$overloadIndex] = array_values($parameters);
+	}
+
+	/**
+	 * @param int $parameterIndex
+	 * @param int $overloadIndex
+	 */
+	public function removeParameter(int $parameterIndex, int $overloadIndex = 0) : void{
+		unset($this->overloads[$overloadIndex][$parameterIndex]);
+	}
+
+	public function removeAllParameters() : void{
+		$this->overloads = [];
+	}
+
+	public function removeOverload(int $overloadIndex) : void{
+		unset($this->overloads[$overloadIndex]);
+	}
+
+	/**
+	 * @param int $index
+	 *
+	 * @return CommandParameter[]|null
+	 */
+	public function getOverload(int $index) : ?array{
+		return $this->overloads[$index] ?? null;
+	}
+
+	/**
+	 * @return CommandParameter[][]
+	 */
+	public function getOverloads() : array{
+		return $this->overloads;
 	}
 
 	public static function broadcastCommandMessage(CommandSender $source, Translatable|string $message, bool $sendToSource = true) : void{
