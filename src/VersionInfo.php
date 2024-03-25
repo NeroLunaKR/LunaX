@@ -35,8 +35,6 @@ final class VersionInfo{
 	public const IS_DEVELOPMENT_BUILD = true;
 	public const BUILD_CHANNEL = "stable";
 
-	public const LUNA_X_VERSION = "1.0.0";
-
 	/**
 	 * PocketMine-MP-specific version ID for world data. Used to determine what fixes need to be applied to old world
 	 * data (e.g. stuff saved wrongly by past versions).
@@ -51,6 +49,15 @@ final class VersionInfo{
 	 * Name of the NBT tag used to store the world data version.
 	 */
 	public const TAG_WORLD_DATA_VERSION = "PMMPDataVersion"; //TAG_Long
+
+	/**
+	 * Luna X
+	 * Client Info
+	 */
+	public const CLIENT_NAME = "Luna X";
+	public const CLIENT_TYPE = "NERO";
+	public const CLIENT_VERSION = "1.0.0";
+	public const CLIENT_IS_DEVELOPMENT_BUILD = true;
 
 	private function __construct(){
 		//NOOP
