@@ -69,7 +69,7 @@ abstract class Command{
 	/**
 	 * @param string[] $aliases
 	 */
-	public function __construct(string $name, Translatable|string $description = "", Translatable|string|null $usageMessage = null, array $aliases = [], array $overload = null){
+	public function __construct(string $name, Translatable|string $description = "", Translatable|string|null $usageMessage = null, array $aliases = [], array $overloads = []){
 		$this->name = $name;
 		$this->setLabel($name);
 		$this->setDescription($description);

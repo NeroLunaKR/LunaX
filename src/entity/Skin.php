@@ -23,6 +23,11 @@ declare(strict_types=1);
 
 namespace pocketmine\entity;
 
+use pocketmine\network\mcpe\protocol\ProtocolInfo;
+use pocketmine\network\mcpe\protocol\types\skin\SkinAnimation;
+use pocketmine\network\mcpe\protocol\types\skin\SkinData;
+use pocketmine\network\mcpe\protocol\types\skin\SkinImage;
+
 use Ahc\Json\Comment as CommentedJsonDecoder;
 use pocketmine\utils\Limits;
 use function implode;
