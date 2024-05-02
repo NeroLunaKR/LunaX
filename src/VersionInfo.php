@@ -31,7 +31,7 @@ use function str_repeat;
 
 final class VersionInfo{
 	public const NAME = "Luna X(NERO)";
-	public const BASE_VERSION = "5.13.1";
+	public const BASE_VERSION = "5.14.2";
 	public const IS_DEVELOPMENT_BUILD = true;
 	public const BUILD_CHANNEL = "stable";
 
@@ -56,7 +56,7 @@ final class VersionInfo{
 	 */
 	public const CLIENT_NAME = "Luna X";
 	public const CLIENT_TYPE = "NERO";
-	public const CLIENT_VERSION = "1.0.0";
+	public const CLIENT_VERSION = "1.1.0";
 	public const CLIENT_IS_DEVELOPMENT_BUILD = true;
 
 	private function __construct(){
@@ -72,7 +72,8 @@ final class VersionInfo{
 			if(\Phar::running(true) === ""){
 				$gitHash = Git::getRepositoryStatePretty(\pocketmine\PATH);
 			}else{
-				$phar = new \Phar(\Phar::running(false));
+				$pharPath = \Phar::running(false);
+				$phar = \Phar::isValidPharFilename($pharPath) ? new \Phar($pharPath) : new \PharData($pharPath);
 				$meta = $phar->getMetadata();
 				if(isset($meta["git"])){
 					$gitHash = $meta["git"];
@@ -91,7 +92,8 @@ final class VersionInfo{
 		if(self::$buildNumber === null){
 			self::$buildNumber = 0;
 			if(\Phar::running(true) !== ""){
-				$phar = new \Phar(\Phar::running(false));
+				$pharPath = \Phar::running(false);
+				$phar = \Phar::isValidPharFilename($pharPath) ? new \Phar($pharPath) : new \PharData($pharPath);
 				$meta = $phar->getMetadata();
 				if(is_array($meta) && isset($meta["build"]) && is_int($meta["build"])){
 					self::$buildNumber = $meta["build"];
