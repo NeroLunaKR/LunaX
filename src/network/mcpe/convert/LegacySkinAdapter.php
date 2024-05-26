@@ -60,7 +60,9 @@ class LegacySkinAdapter implements SkinAdapter{
 			$skin->isPremium(),
 			$skin->isPersona(),
 			$skin->isPersonaCapeOnClassic(),
-			$skin->isPrimaryUser()
+			$skin->isPrimaryUser(),
+			$skin->isTrusted(),
+			$skin->isOverride()
 		);
 	}
 
@@ -89,6 +91,8 @@ class LegacySkinAdapter implements SkinAdapter{
 		$skin->setPremium($data->isPremium());
 		$skin->setPersonaCapeOnClassic($data->isPersonaCapeOnClassic());
 		$skin->setPrimaryUser($data->isPrimaryUser());
+		$skin->setTrusted($data->isTrusted());
+		$skin->setOverride($data->isOverride());
 		return $skin;
 	}
 }

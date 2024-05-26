@@ -36,7 +36,7 @@
       "pocketmine/bedrock-block-upgrade-schema": "~4.1.0+bedrock-1.20.80",
       "pocketmine/bedrock-data": "~2.10.0+bedrock-1.20.80",
       "pocketmine/bedrock-item-upgrade-schema": "~1.9.0+bedrock-1.20.80",
-      "pocketmine/bedrock-protocol": "~v1+30.0.0+bedrock-1.20.80",
+      "pocketmine/bedrock-protocol": "~v2+30.0.0+bedrock-1.20.80",
       "pocketmine/binaryutils": "^0.2.1",
       "pocketmine/callback-validator": "^1.0.2",
       "pocketmine/color": "^0.3.0",

@@ -65,6 +65,10 @@ use pocketmine\network\mcpe\protocol\types\GameMode;
 use pocketmine\network\mcpe\protocol\types\inventory\ItemStackWrapper;
 use pocketmine\network\mcpe\protocol\types\PlayerListEntry;
 use pocketmine\network\mcpe\protocol\types\PlayerPermissions;
+use pocketmine\network\mcpe\protocol\types\skin\SkinAnimation;
+use pocketmine\network\mcpe\protocol\types\skin\SkinImage;
+use pocketmine\network\mcpe\protocol\types\skin\PersonaSkinPiece;
+use pocketmine\network\mcpe\protocol\types\skin\PersonaPieceTintColor;
 use pocketmine\network\mcpe\protocol\UpdateAbilitiesPacket;
 use pocketmine\player\Player;
 use pocketmine\world\sound\TotemUseSound;
@@ -98,6 +102,27 @@ class Human extends Living implements ProjectileSource, InventoryHolder{
 	private const TAG_SKIN_GEOMETRY_NAME = "GeometryName"; //TAG_String
 	private const TAG_SKIN_GEOMETRY_DATA = "GeometryData"; //TAG_ByteArray
 
+	//Persona Skin
+	private const TAG_SKIN_ID = "ModelId"; //TAG_String
+	private const TAG_PLAY_FAB_ID = "PlayFabId"; //TAG_String
+	private const TAG_SKIN_IMAGE_WIDTH = "SkinImageWidth"; //TAG_Int
+	private const TAG_SKIN_IMAGE_HEIGHT = "SkinImageHeight"; //TAG_Int
+	private const TAG_CAPE_ID = "CapeId"; //TAG_String
+	private const TAG_CAPE_IMAGE_WIDTH = "CapeImageWidth"; //TAG_Int
+	private const TAG_CAPE_IMAGE_HEIGHT = "CapeImageHeight"; //TAG_Int
+	private const TAG_SKIN_RESOURCE_PATCH = "SkinResourcePatch"; //TAG_String
+	private const TAG_SKIN_ANIMATION_DATA = "SkinAnimationData"; //TAG_String
+	private const TAG_ANIMATION_DATA = "AnimationData"; //TAG_String
+	private const TAG_PREMIUM_SKIN = "PremiumSkin"; //TAG_Byte
+	private const TAG_PERSONA_SKIN = "PersonaSkin"; //TAG_Byte
+	private const TAG_CAPE_ON_CLASSIC_SKIN = "CapeOnClassicSkin"; //TAG_Byte
+	private const TAG_ANIMATED_IMAGE_DATA = "AnimatedImageData"; //TAG_List<TAG_Compound>
+	private const TAG_ARM_SIZE = "ArmSize"; //TAG_String
+	private const TAG_SKIN_COLOR = "SkinColor"; //TAG_String
+	private const TAG_PERSONA_PIECES = "PersonaPieces"; //TAG_List<TAG_Compound>
+	private const TAG_PIECE_TINT_COLORS = "PieceTintColors"; //TAG_List<TAG_Compound>
+	private const TAG_IS_TRUSTED_SKIN = "IsTrustedSkin"; //TAG_Byte
+
 	public static function getNetworkTypeId() : string{ return EntityIds::PLAYER; }
 
 	protected PlayerInventory $inventory;
@@ -129,13 +154,76 @@ class Human extends Living implements ProjectileSource, InventoryHolder{
 		if($skinTag === null){
 			throw new SavedDataLoadingException("Missing skin data");
 		}
-		return new Skin( //this throws if the skin is invalid
+		$skin =  new Skin( //this throws if the skin is invalid
 			$skinTag->getString(self::TAG_SKIN_NAME),
 			($skinDataTag = $skinTag->getTag(self::TAG_SKIN_DATA)) instanceof StringTag ? $skinDataTag->getValue() : $skinTag->getByteArray(self::TAG_SKIN_DATA), //old data (this used to be saved as a StringTag in older versions of PM)
 			$skinTag->getByteArray(self::TAG_SKIN_CAPE_DATA, ""),
 			$skinTag->getString(self::TAG_SKIN_GEOMETRY_NAME, ""),
 			$skinTag->getByteArray(self::TAG_SKIN_GEOMETRY_DATA, "")
 		);
+		$skin->setSkinId($skinTag->getString(self::TAG_SKIN_ID));
+		$skin->setPlayFabId($skinTag->getString(self::TAG_PLAY_FAB_ID));
+		$skin->setSkinImage(
+			new SkinImage(
+				$skinTag->getString(self::TAG_SKIN_IMAGE_WIDTH),
+				$skinTag->getString(self::TAG_SKIN_IMAGE_HEIGHT),
+				($skinDataTag = $skinTag->getTag(self::TAG_SKIN_DATA)) instanceof StringTag ? $skinDataTag->getValue() : $skinTag->getByteArray(self::TAG_SKIN_DATA) //old data (this used to be saved as a StringTag in older versions of PM)
+			)
+		);
+		$skin->setCapeId($skinTag->getString(self::TAG_CAPE_ID));
+		$skin->setResourcePatch($skinTag->getByteArray(self::TAG_SKIN_RESOURCE_PATCH, ""));
+		$skin->setAnimationData($skinTag->getByteArray(self::TAG_SKIN_ANIMATION_DATA, ""));
+		$skin->setPremium((bool) $skinTag->getByte(self::TAG_PREMIUM_SKIN));
+		$skin->setPersona((bool) $skinTag->getByte(self::TAG_PERSONA_SKIN));
+		$skin->setPersonaCapeOnClassic((bool) $skinTag->getByte(self::TAG_CAPE_ON_CLASSIC_SKIN));
+
+		if($skinTag->getTag(self::TAG_ANIMATED_IMAGE_DATA) !== null){
+			$animatedImageData = $skinTag->getList(self::TAG_ANIMATED_IMAGE_DATA);
+			$animatedImageDatas = [];
+			foreach($animatedImageData->getValue() as $tag){
+				$image = new SkinImage($tag->getInt("ImageWidth"), $tag->getInt("ImageHeight"), $tag->getByteArray("Image"));
+				$frames = $tag->getFloat("Frames");
+				$type = $tag->getInt("Type");
+				$expression = $tag->getInt("AnimationExpression");
+				$animatedImageDatas[] = new SkinAnimation($image, $type, $frames, $expression);
+			}
+			$skin->setAnimations($animatedImageDatas);
+		}
+
+		$skin->setArmSize($skinTag->getString(self::TAG_ARM_SIZE));
+		$skin->setSkinColor($skinTag->getString(self::TAG_SKIN_COLOR));
+
+		if($skinTag->getTag(self::TAG_PERSONA_PIECES) !== null){
+			$personaPieces = $skinTag->getList(self::TAG_PERSONA_PIECES);
+			$personaPiecesDatas = [];
+			foreach($personaPieces->getValue() as $tag){
+				$pieceId = $tag->getString("PieceId");
+				$pieceType = $tag->getString("PieceType");
+				$packId = $tag->getString("PackId");
+				$isDefault = (bool) $tag->getByte("IsDefault");
+				$productId = $tag->getString("ProductId");
+				$personaPiecesDatas[] = new PersonaSkinPiece($pieceId, $pieceType, $packId, $isDefault, $productId);
+			}
+			$skin->setPersonaPieces($personaPiecesDatas);
+		}
+
+		if($skinTag->getTag(self::TAG_PIECE_TINT_COLORS) !== null){
+			$pieceTintColors = $skinTag->getList(self::TAG_PIECE_TINT_COLORS);
+			$pieceTintColorsDatas = [];
+			foreach($pieceTintColors->getValue() as $tag){
+				$pieceType = $tag->getString("PieceType");
+				$colorsData = $tag->getListTag("PieceType");
+				$colors = [];
+				foreach($colorsData->getValue() as $colorTag){
+					$colors[] = $colorTag->getString("");
+				}
+				$pieceTintColorsDatas[] = new PersonaPieceTintColor($pieceType, $colors);
+			}
+			$skin->setPieceTintColors($pieceTintColorsDatas);
+		}
+
+		$skin->setTrusted((bool) $skinTag->getByte(self::TAG_IS_TRUSTED_SKIN));
+		return $skin;
 	}
 
 	public function getUniqueId() : UuidInterface{
@@ -461,13 +549,82 @@ class Human extends Living implements ProjectileSource, InventoryHolder{
 
 		$nbt->setTag(self::TAG_ENDER_CHEST_INVENTORY, new ListTag($items, NBT::TAG_Compound));
 
-		$nbt->setTag(self::TAG_SKIN, CompoundTag::create()
+		$skinTag = CompoundTag::create()
 			->setString(self::TAG_SKIN_NAME, $this->skin->getSkinId())
 			->setByteArray(self::TAG_SKIN_DATA, $this->skin->getSkinData())
 			->setByteArray(self::TAG_SKIN_CAPE_DATA, $this->skin->getCapeData())
 			->setString(self::TAG_SKIN_GEOMETRY_NAME, $this->skin->getGeometryName())
 			->setByteArray(self::TAG_SKIN_GEOMETRY_DATA, $this->skin->getGeometryData())
-		);
+
+			->setInt(self::TAG_SKIN_IMAGE_WIDTH, $this->skin->getSkinImage()->getWidth())
+			->setInt(self::TAG_SKIN_IMAGE_HEIGHT, $this->skin->getSkinImage()->getHeight())
+			->setString(self::TAG_SKIN_ID, $this->skin->getSkinId())
+			->setString(self::TAG_CAPE_ID, $this->skin->getCapeId())
+
+			->setByteArray(self::TAG_SKIN_RESOURCE_PATCH, $this->skin->getResourcePatch())
+			->setByteArray(self::TAG_SKIN_ANIMATION_DATA, $this->skin->getAnimationData())
+			->setByte(self::TAG_PREMIUM_SKIN, (int) $this->skin->isPremium())
+			->setByte(self::TAG_PERSONA_SKIN, (int) $this->skin->isPersona())
+			->setByte(self::TAG_CAPE_ON_CLASSIC_SKIN, (int) $this->skin->isPersonaCapeOnClassic())
+			->setString(self::TAG_ARM_SIZE, $this->skin->getArmSize())
+			->setString(self::TAG_SKIN_COLOR, $this->skin->getSkinColor())
+			->setByte(self::TAG_IS_TRUSTED_SKIN, (int) $this->skin->isTrusted());
+
+		if(strlen($this->skin->getCapeData()) !== 0){
+			$skinTag->setInt(self::TAG_CAPE_IMAGE_WIDTH, $this->skin->getCapeImage()->getWidth());
+			$skinTag->setInt(self::TAG_CAPE_IMAGE_HEIGHT, $this->skin->getCapeImage()->getHeight());
+		}
+
+		if(!empty($this->skin->getAnimations())){
+			$animationImageDatas = [];
+			foreach($this->skin->getAnimations() as $animation){
+				$animationImageTag = CompoundTag::create()
+					->setFloat("Frames", $animation->getFrames())
+					->setInt("Type", $animation->getType())
+					->setInt("ImageWidth", $animation->getImage()->getWidth())
+					->setInt("ImageHeight", $animation->getImage()->getHeight())
+					->setInt("AnimationExpression", $animation->getFrames())
+					->setByteArray("Image", $animation->getImage()->getData());
+				$animationImageDatas[] = $animationImageTag;
+			}
+			$animationImageDataTag = new ListTag($animationImageDatas, NBT::TAG_Compound);
+			$skinTag->setTag(self::TAG_ANIMATED_IMAGE_DATA, $animationImageDataTag);
+		}
+
+		if(!empty($this->skin->getPersonaPieces())){
+			$personaPiecesDatas = [];
+			foreach($this->skin->getPersonaPieces() as $personaPiece){
+				$personaPiecesTag = CompoundTag::create()
+					->setString("PieceId", $personaPiece->getPieceId())
+					->setString("PieceType", $personaPiece->getPieceType())
+					->setString("PackId", $personaPiece->getPackId())
+					->setByte("IsDefault", (int) $personaPiece->isDefaultPiece())
+					->setString("ProductId", $personaPiece->getProductId());
+				$personaPiecesDatas[] = $personaPiecesTag;
+			}
+			$personaPiecesDataTag = new ListTag($personaPiecesDatas, NBT::TAG_Compound);
+			$skinTag->setTag(self::TAG_PERSONA_PIECES, $personaPiecesDataTag);
+		}
+
+		if(!empty($this->skin->getPieceTintColors())){
+			$pieceTintColorsDatas = [];
+			foreach($this->skin->getPieceTintColors() as $pieceTintColor){
+				$colors = [];
+				foreach($pieceTintColor->getColors() as $color){
+					$tag = CompoundTag::create();
+					$colors[] = $tag->setString("", $color);
+				}
+				$pieceTintColorsTag = CompoundTag::create()
+					->setString("PieceType", $pieceTintColor->getPieceType())
+					->setTag("Colors", new ListTag($colors, NBT::TAG_Compound));
+				$pieceTintColorsDatas[] = $personaPiecesTag;
+			}
+			$pieceTintColorsDataTag = new ListTag($pieceTintColorsDatas, NBT::TAG_Compound);
+			$skinTag->setTag(self::TAG_PIECE_TINT_COLORS, $pieceTintColorsDataTag);
+		}
+
+		$skinTag->setString(self::TAG_PLAY_FAB_ID, $this->skin->getPlayFabId());
+		$nbt->setTag(self::TAG_SKIN, $skinTag);
 
 		return $nbt;
 	}

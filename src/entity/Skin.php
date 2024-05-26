@@ -40,44 +40,63 @@ final class Skin{
 	public const ACCEPTED_SKIN_SIZES = [
 		SkinImage::SINGLE_SKIN_SIZE,
 		SkinImage::DOUBLE_SKIN_SIZE,
+
 		SkinImage::SKIN_128_32_SIZE,
 		SkinImage::SKIN_128_64_SIZE,
 		SkinImage::SKIN_128_128_SIZE,
+
 		SkinImage::SKIN_256_32_SIZE,
 		SkinImage::SKIN_256_64_SIZE,
 		SkinImage::SKIN_256_128_SIZE,
 		SkinImage::SKIN_256_256_SIZE,
+
 		SkinImage::SKIN_512_32_SIZE,
 		SkinImage::SKIN_512_64_SIZE,
 		SkinImage::SKIN_512_128_SIZE,
 		SkinImage::SKIN_512_256_SIZE,
-		SkinImage::SKIN_512_512_SIZE
+		SkinImage::SKIN_512_512_SIZE,
+
+		SkinImage::SKIN_1024_32_SIZE,
+		SkinImage::SKIN_1024_64_SIZE,
+		SkinImage::SKIN_1024_128_SIZE,
+		SkinImage::SKIN_1024_256_SIZE,
+		SkinImage::SKIN_1024_512_SIZE,
+		SkinImage::SKIN_1024_1024_SIZE,
+
+		SkinImage::SKIN_2048_32_SIZE,
+		SkinImage::SKIN_2048_64_SIZE,
+		SkinImage::SKIN_2048_128_SIZE,
+		SkinImage::SKIN_2048_256_SIZE,
+		SkinImage::SKIN_2048_512_SIZE,
+		SkinImage::SKIN_2048_1024_SIZE,
+		SkinImage::SKIN_2048_2048_SIZE
 	];
 
-	private string $skinId;
-	private string $skinData;
-	private string $capeData;
-	private string $geometryName;
-	private string $geometryData;
-
+	private string $fullSkinId;
+	private string $skinId; //Legacy
 	private string $playFabId = "";
-	private string $resourcePatch = "";
-	private SkinImage $skinImage;
+	private string $resourcePatch;
+	private string $skinData; //Legacy
 	private array $animations = []; //SkinAnimation[]
-	private string $geometryDataEngineVersion = ProtocolInfo::MINECRAFT_VERSION_NETWORK;
-	private string $animationData = "";
-	private string $capeId = "";
-	private string $fullSkinId = "";
-	private string $armSize = SkinData::ARM_SIZE_WIDE;
-	private string $skinColor = "#0";
 	private array $personaPieces = []; //PersonaSkinPiece[]
 	private array $pieceTintColors = []; //PersonaPieceTintColor[]
-	private bool $isVerified = true;
-	private bool $persona = false;
+	private string $capeData; //Legacy
+	private string $geometryData; //Legacy
+	private string $animationData = "";
 	private bool $premium = false;
+	private bool $persona = false;
 	private bool $personaCapeOnClassic = true;
-	private bool $isPrimaryUser = true;
+	private bool $primaryUser = true;
+	private string $capeId;
+	private string $skinColor = "#0";
+	private string $armSize = "wide";
+	private bool $trusted = true;
+	private string $geometryDataEngineVersion = "";
 	private bool $override = true;
+
+	private string $geometryName;
+	private SkinImage $skinImage;
+	private bool $verified = true;
 
 	private static function checkLength(string $string, string $name, int $maxLength) : void{
 		if(strlen($string) > $maxLength){
@@ -309,11 +328,11 @@ final class Skin{
 	}
 
 	public function isVerified() : bool{
-		return $this->isVerified;
+		return $this->verified;
 	}
 
-	public function setVerified(bool $isVerified) : Skin{
-		$this->isVerified = $isVerified;
+	public function setVerified(bool $verified) : Skin{
+		$this->verified = $verified;
 		return $this;
 	}
 
@@ -345,11 +364,20 @@ final class Skin{
 	}
 
 	public function isPrimaryUser() : bool{
-		return $this->isPrimaryUser;
+		return $this->primaryUser;
 	}
 
-	public function setPrimaryUser(bool $isPrimaryUser) : self{
-		$this->isPrimaryUser = $isPrimaryUser;
+	public function setPrimaryUser(bool $primaryUser) : self{
+		$this->primaryUser = $primaryUser;
+		return $this;
+	}
+
+	public function isTrusted() : bool{
+		return $this->trusted;
+	}
+
+	public function setTrusted(bool $trusted) : self{
+		$this->trusted = $trusted;
 		return $this;
 	}
 
