@@ -184,7 +184,7 @@ class Human extends Living implements ProjectileSource, InventoryHolder{
 				$image = new SkinImage($tag->getInt("ImageWidth"), $tag->getInt("ImageHeight"), $tag->getByteArray("Image"));
 				$frames = $tag->getFloat("Frames");
 				$type = $tag->getInt("Type");
-				$expression = $tag->getInt("AnimationExpression");
+				$expression = $tag->getFloat("AnimationExpression");
 				$animatedImageDatas[] = new SkinAnimation($image, $type, $frames, $expression);
 			}
 			$skin->setAnimations($animatedImageDatas);
@@ -583,7 +583,7 @@ class Human extends Living implements ProjectileSource, InventoryHolder{
 					->setInt("Type", $animation->getType())
 					->setInt("ImageWidth", $animation->getImage()->getWidth())
 					->setInt("ImageHeight", $animation->getImage()->getHeight())
-					->setInt("AnimationExpression", $animation->getFrames())
+					->setFloat("AnimationExpression", $animation->getFrames())
 					->setByteArray("Image", $animation->getImage()->getData());
 				$animationImageDatas[] = $animationImageTag;
 			}

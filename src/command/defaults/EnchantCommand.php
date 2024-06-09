@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace pocketmine\command\defaults;
 
+use pocketmine\data\bedrock\EnchantmentIdMap;
 use pocketmine\command\CommandSender;
 use pocketmine\command\utils\InvalidCommandSyntaxException;
 use pocketmine\item\enchantment\EnchantingHelper;
@@ -79,7 +80,10 @@ class EnchantCommand extends VanillaCommand{
 			return true;
 		}
 
-		$enchantment = StringToEnchantmentParser::getInstance()->parse($args[1]);
+		$enchantment = match(true){
+			(is_numeric($args[1])) => EnchantmentIdMap::getInstance()->fromId((int)$args[1]),
+			default => StringToEnchantmentParser::getInstance()->parse($args[1])
+		};
 		if($enchantment === null){
 			$sender->sendMessage(KnownTranslationFactory::commands_enchant_notFound($args[1]));
 			return true;
