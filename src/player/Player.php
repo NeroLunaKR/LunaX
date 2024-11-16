@@ -57,6 +57,7 @@ use pocketmine\event\player\PlayerDisplayNameChangeEvent;
 use pocketmine\event\player\PlayerDropItemEvent;
 use pocketmine\event\player\PlayerEmoteEvent;
 use pocketmine\event\player\PlayerEntityInteractEvent;
+use pocketmine\event\player\PlayerEntityPickEvent;
 use pocketmine\event\player\PlayerExhaustEvent;
 use pocketmine\event\player\PlayerGameModeChangeEvent;
 use pocketmine\event\player\PlayerInteractEvent;
@@ -1636,7 +1637,7 @@ class Player extends Human implements CommandSender, ChunkListener, IPlayer{
 			return false;
 		}
 
-		$this->resetItemCooldown($item);
+		$this->resetItemCooldown($oldItem);
 		$this->returnItemsFromAction($oldItem, $item, $returnedItems);
 
 		$this->setUsingItem($item instanceof Releasable && $item->canStartUsingItem($this));
@@ -1665,7 +1666,7 @@ class Player extends Human implements CommandSender, ChunkListener, IPlayer{
 			}
 
 			$this->setUsingItem(false);
-			$this->resetItemCooldown($slot);
+			$this->resetItemCooldown($oldItem);
 
 			$slot->pop();
 			$this->returnItemsFromAction($oldItem, $slot, [$slot->getResidue()]);
@@ -1693,7 +1694,7 @@ class Player extends Human implements CommandSender, ChunkListener, IPlayer{
 			$returnedItems = [];
 			$result = $item->onReleaseUsing($this, $returnedItems);
 			if($result === ItemUseResult::SUCCESS){
-				$this->resetItemCooldown($item);
+				$this->resetItemCooldown($oldItem);
 				$this->returnItemsFromAction($oldItem, $item, $returnedItems);
 				return true;
 			}
@@ -1720,27 +1721,56 @@ class Player extends Human implements CommandSender, ChunkListener, IPlayer{
 		$ev->call();
 
 		if(!$ev->isCancelled()){
-			if($existingSlot !== -1){
-				if($existingSlot < $this->inventory->getHotbarSize()){
-					$this->inventory->setHeldItemIndex($existingSlot);
-				}else{
-					$this->inventory->swap($this->inventory->getHeldItemIndex(), $existingSlot);
-				}
-			}else{
-				$firstEmpty = $this->inventory->firstEmpty();
-				if($firstEmpty === -1){ //full inventory
-					$this->inventory->setItemInHand($item);
-				}elseif($firstEmpty < $this->inventory->getHotbarSize()){
-					$this->inventory->setItem($firstEmpty, $item);
-					$this->inventory->setHeldItemIndex($firstEmpty);
-				}else{
-					$this->inventory->swap($this->inventory->getHeldItemIndex(), $firstEmpty);
-					$this->inventory->setItemInHand($item);
-				}
-			}
+			$this->equipOrAddPickedItem($existingSlot, $item);
 		}
 
 		return true;
+	}
+
+	public function pickEntity(int $entityId) : bool{
+		$entity = $this->getWorld()->getEntity($entityId);
+		if($entity === null){
+			return true;
+		}
+
+		$item = $entity->getPickedItem();
+		if($item === null){
+			return true;
+		}
+
+		$ev = new PlayerEntityPickEvent($this, $entity, $item);
+		$existingSlot = $this->inventory->first($item);
+		if($existingSlot === -1 && ($this->hasFiniteResources() || $this->isSpectator())){
+			$ev->cancel();
+		}
+		$ev->call();
+
+		if(!$ev->isCancelled()){
+			$this->equipOrAddPickedItem($existingSlot, $item);
+		}
+
+		return true;
+	}
+
+	private function equipOrAddPickedItem(int $existingSlot, Item $item) : void{
+		if($existingSlot !== -1){
+			if($existingSlot < $this->inventory->getHotbarSize()){
+				$this->inventory->setHeldItemIndex($existingSlot);
+			}else{
+				$this->inventory->swap($this->inventory->getHeldItemIndex(), $existingSlot);
+			}
+		}else{
+			$firstEmpty = $this->inventory->firstEmpty();
+			if($firstEmpty === -1){ //full inventory
+				$this->inventory->setItemInHand($item);
+			}elseif($firstEmpty < $this->inventory->getHotbarSize()){
+				$this->inventory->setItem($firstEmpty, $item);
+				$this->inventory->setHeldItemIndex($firstEmpty);
+			}else{
+				$this->inventory->swap($this->inventory->getHeldItemIndex(), $firstEmpty);
+				$this->inventory->setItemInHand($item);
+			}
+		}
 	}
 
 	/**

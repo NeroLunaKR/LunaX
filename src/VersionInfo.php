@@ -31,7 +31,7 @@ use function str_repeat;
 
 final class VersionInfo{
 	public const NAME = "Luna X(NERO)";
-	public const BASE_VERSION = "5.21.1";
+	public const BASE_VERSION = "5.21.2";
 	public const IS_DEVELOPMENT_BUILD = true;
 	public const BUILD_CHANNEL = "stable";
 
@@ -56,8 +56,8 @@ final class VersionInfo{
 	 */
 	public const CLIENT_NAME = "Luna X";
 	public const CLIENT_TYPE = "NERO";
-	public const CLIENT_VERSION = "2.0.0";
-	public const CLIENT_IS_DEVELOPMENT_BUILD = false;
+	public const CLIENT_VERSION = "2.1.0";
+	public const CLIENT_IS_DEVELOPMENT_BUILD = true;
 	public const CLIENT_CHANNEL = "stable";
 
 	private function __construct(){

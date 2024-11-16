@@ -21,19 +21,33 @@
 
 declare(strict_types=1);
 
-namespace pocketmine\item;
+namespace pocketmine\event\player;
 
-use pocketmine\entity\effect\EffectInstance;
-use pocketmine\entity\effect\VanillaEffects;
+use pocketmine\entity\Entity;
+use pocketmine\event\Cancellable;
+use pocketmine\event\CancellableTrait;
+use pocketmine\item\Item;
+use pocketmine\player\Player;
 
-class GoldenAppleEnchanted extends GoldenApple{
+/**
+ * Called when a player middle-clicks on an entity to get an item in creative mode.
+ */
+class PlayerEntityPickEvent extends PlayerEvent implements Cancellable{
+	use CancellableTrait;
 
-	public function getAdditionalEffects() : array{
-		return [
-			new EffectInstance(VanillaEffects::REGENERATION(), 600, 1),
-			new EffectInstance(VanillaEffects::ABSORPTION(), 2400, 3),
-			new EffectInstance(VanillaEffects::RESISTANCE(), 6000),
-			new EffectInstance(VanillaEffects::FIRE_RESISTANCE(), 6000)
-		];
+	public function __construct(
+		Player $player,
+		private Entity $entityClicked,
+		private Item $resultItem
+	){
+		$this->player = $player;
+	}
+
+	public function getEntity() : Entity{
+		return $this->entityClicked;
+	}
+
+	public function getResultItem() : Item{
+		return $this->resultItem;
 	}
 }

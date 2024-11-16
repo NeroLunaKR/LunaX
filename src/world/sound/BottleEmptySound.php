@@ -21,19 +21,15 @@
 
 declare(strict_types=1);
 
-namespace pocketmine\item;
+namespace pocketmine\world\sound;
 
-use pocketmine\entity\effect\EffectInstance;
-use pocketmine\entity\effect\VanillaEffects;
+use pocketmine\math\Vector3;
+use pocketmine\network\mcpe\protocol\LevelSoundEventPacket;
+use pocketmine\network\mcpe\protocol\types\LevelSoundEvent;
 
-class GoldenAppleEnchanted extends GoldenApple{
+class BottleEmptySound implements Sound{
 
-	public function getAdditionalEffects() : array{
-		return [
-			new EffectInstance(VanillaEffects::REGENERATION(), 600, 1),
-			new EffectInstance(VanillaEffects::ABSORPTION(), 2400, 3),
-			new EffectInstance(VanillaEffects::RESISTANCE(), 6000),
-			new EffectInstance(VanillaEffects::FIRE_RESISTANCE(), 6000)
-		];
+	public function encode(Vector3 $pos) : array{
+		return [LevelSoundEventPacket::nonActorSound(LevelSoundEvent::BOTTLE_EMPTY, $pos, false)];
 	}
 }
