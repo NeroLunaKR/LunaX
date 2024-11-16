@@ -35,6 +35,7 @@ use pocketmine\event\entity\EntityMotionEvent;
 use pocketmine\event\entity\EntityRegainHealthEvent;
 use pocketmine\event\entity\EntitySpawnEvent;
 use pocketmine\event\entity\EntityTeleportEvent;
+use pocketmine\item\Item;
 use pocketmine\math\AxisAlignedBB;
 use pocketmine\math\Facing;
 use pocketmine\math\Vector2;
@@ -1481,7 +1482,7 @@ abstract class Entity{
 		return $this->hasSpawned;
 	}
 
-	abstract public static function getNetworkTypeId() : string;
+	abstract public function getNetworkTypeId() : string;
 
 	/**
 	 * Called by spawnTo() to send whatever packets needed to spawn the entity to the client.
@@ -1490,7 +1491,7 @@ abstract class Entity{
 		$player->getNetworkSession()->sendDataPacket(AddActorPacket::create(
 			$this->getId(), //TODO: actor unique ID
 			$this->getId(),
-			static::getNetworkTypeId(),
+			$this->getNetworkTypeId(),
 			$this->location->asVector3(),
 			$this->getMotion(),
 			$this->location->pitch,
@@ -1558,6 +1559,13 @@ abstract class Entity{
 			fn(EntityEventBroadcaster $broadcaster, array $recipients) => $broadcaster->onEntityRemoved($recipients, $this)
 		);
 		$this->hasSpawned = [];
+	}
+
+	/**
+	 * Returns the item that players will equip when middle-clicking on this entity.
+	 */
+	public function getPickedItem() : ?Item{
+		return null;
 	}
 
 	/**

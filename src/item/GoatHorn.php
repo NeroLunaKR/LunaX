@@ -24,25 +24,25 @@ declare(strict_types=1);
 namespace pocketmine\item;
 
 use pocketmine\data\runtime\RuntimeDataDescriber;
-use pocketmine\entity\Living;
+use pocketmine\math\Vector3;
 use pocketmine\player\Player;
-use pocketmine\world\sound\BottleEmptySound;
+use pocketmine\world\sound\GoatHornSound;
 
-class Potion extends Item implements ConsumableItem{
+class GoatHorn extends Item implements Releasable{
 
-	private PotionType $potionType = PotionType::WATER;
+	private GoatHornType $goatHornType = GoatHornType::PONDER;
 
 	protected function describeState(RuntimeDataDescriber $w) : void{
-		$w->enum($this->potionType);
+		$w->enum($this->goatHornType);
 	}
 
-	public function getType() : PotionType{ return $this->potionType; }
+	public function getHornType() : GoatHornType{ return $this->goatHornType; }
 
 	/**
 	 * @return $this
 	 */
-	public function setType(PotionType $type) : self{
-		$this->potionType = $type;
+	public function setHornType(GoatHornType $type) : self{
+		$this->goatHornType = $type;
 		return $this;
 	}
 
@@ -50,20 +50,22 @@ class Potion extends Item implements ConsumableItem{
 		return 1;
 	}
 
-	public function onConsume(Living $consumer) : void{
-		$consumer->broadcastSound(new BottleEmptySound());
+	public function getCooldownTicks() : int{
+		return 140;
 	}
 
-	public function getAdditionalEffects() : array{
-		//TODO: check CustomPotionEffects NBT
-		return $this->potionType->getEffects();
-	}
-
-	public function getResidue() : Item{
-		return VanillaItems::GLASS_BOTTLE();
+	public function getCooldownTag() : ?string{
+		return ItemCooldownTags::GOAT_HORN;
 	}
 
 	public function canStartUsingItem(Player $player) : bool{
 		return true;
+	}
+
+	public function onClickAir(Player $player, Vector3 $directionVector, array &$returnedItems) : ItemUseResult{
+		$position = $player->getPosition();
+		$position->getWorld()->addSound($position, new GoatHornSound($this->goatHornType));
+
+		return ItemUseResult::SUCCESS;
 	}
 }

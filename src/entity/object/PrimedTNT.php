@@ -23,11 +23,13 @@ declare(strict_types=1);
 
 namespace pocketmine\entity\object;
 
+use pocketmine\block\VanillaBlocks;
 use pocketmine\entity\Entity;
 use pocketmine\entity\EntitySizeInfo;
 use pocketmine\entity\Explosive;
 use pocketmine\event\entity\EntityDamageEvent;
 use pocketmine\event\entity\EntityPreExplodeEvent;
+use pocketmine\item\Item;
 use pocketmine\math\Vector3;
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\network\mcpe\protocol\types\entity\EntityIds;
@@ -41,7 +43,7 @@ class PrimedTNT extends Entity implements Explosive{
 
 	private const TAG_FUSE = "Fuse"; //TAG_Short
 
-	public static function getNetworkTypeId() : string{ return EntityIds::TNT; }
+	public function getNetworkTypeId() : string{ return EntityIds::TNT; }
 
 	protected int $fuse;
 	protected bool $worksUnderwater = false;
@@ -125,6 +127,10 @@ class PrimedTNT extends Entity implements Explosive{
 			}
 			$explosion->explodeB();
 		}
+	}
+
+	public function getPickedItem() : ?Item{
+		return VanillaBlocks::TNT()->setWorksUnderwater($this->worksUnderwater)->asItem();
 	}
 
 	protected function syncNetworkData(EntityMetadataCollection $properties) : void{

@@ -21,18 +21,33 @@
 
 declare(strict_types=1);
 
-namespace pocketmine\utils;
+namespace pocketmine\event\player;
 
-use PHPUnit\Framework\TestCase;
+use pocketmine\entity\Entity;
+use pocketmine\event\Cancellable;
+use pocketmine\event\CancellableTrait;
+use pocketmine\item\Item;
+use pocketmine\player\Player;
 
-class EnumTraitTest extends TestCase{
+/**
+ * Called when a player middle-clicks on an entity to get an item in creative mode.
+ */
+class PlayerEntityPickEvent extends PlayerEvent implements Cancellable{
+	use CancellableTrait;
 
-	/**
-	 * @doesNotPerformAssertions
-	 */
-	public function testEnumLazyInit() : void{
-		foreach([TestEnum::ONE(), TestEnum::TWO(), TestEnum::THREE()] as $member){
-			//NOOP
-		}
+	public function __construct(
+		Player $player,
+		private Entity $entityClicked,
+		private Item $resultItem
+	){
+		$this->player = $player;
+	}
+
+	public function getEntity() : Entity{
+		return $this->entityClicked;
+	}
+
+	public function getResultItem() : Item{
+		return $this->resultItem;
 	}
 }

@@ -21,21 +21,15 @@
 
 declare(strict_types=1);
 
-namespace pocketmine\plugin;
+namespace pocketmine\data\bedrock;
 
-interface ResourceProvider{
-	/**
-	 * Gets an embedded resource on the plugin file.
-	 * WARNING: You must close the resource given using fclose()
-	 *
-	 * @return null|resource Resource data, or null
-	 */
-	public function getResource(string $filename);
-
-	/**
-	 * Returns all the resources packaged with the plugin in the form ["path/in/resources" => SplFileInfo]
-	 *
-	 * @return \SplFileInfo[]
-	 */
-	public function getResources() : array;
+final class GoatHornTypeIds{
+	public const PONDER = 0;
+	public const SING = 1;
+	public const SEEK = 2;
+	public const FEEL = 3;
+	public const ADMIRE = 4;
+	public const CALL = 5;
+	public const YEARN = 6;
+	public const DREAM = 7;
 }

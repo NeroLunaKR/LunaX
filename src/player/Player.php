@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace pocketmine\player;
 
+use DateTimeImmutable;
 use pocketmine\block\BaseSign;
 use pocketmine\block\Bed;
 use pocketmine\block\BlockTypeTags;
@@ -57,6 +58,7 @@ use pocketmine\event\player\PlayerDisplayNameChangeEvent;
 use pocketmine\event\player\PlayerDropItemEvent;
 use pocketmine\event\player\PlayerEmoteEvent;
 use pocketmine\event\player\PlayerEntityInteractEvent;
+use pocketmine\event\player\PlayerEntityPickEvent;
 use pocketmine\event\player\PlayerExhaustEvent;
 use pocketmine\event\player\PlayerGameModeChangeEvent;
 use pocketmine\event\player\PlayerInteractEvent;
@@ -234,8 +236,8 @@ class Player extends Human implements CommandSender, ChunkListener, IPlayer{
 
 	protected int $messageCounter = 2;
 
-	protected int $firstPlayed;
-	protected int $lastPlayed;
+	protected DateTimeImmutable $firstPlayed;
+	protected DateTimeImmutable $lastPlayed;
 	protected GameMode $gamemode;
 
 	/**
@@ -381,8 +383,12 @@ class Player extends Human implements CommandSender, ChunkListener, IPlayer{
 			}
 		));
 
-		$this->firstPlayed = $nbt->getLong(self::TAG_FIRST_PLAYED, $now = (int) (microtime(true) * 1000));
-		$this->lastPlayed = $nbt->getLong(self::TAG_LAST_PLAYED, $now);
+		$now = (int) (microtime(true) * 1000);
+		$createDateTimeImmutable = static function(string $tag) use ($nbt, $now) : DateTimeImmutable{
+			return new DateTimeImmutable('@' . $nbt->getLong($tag, $now) / 1000);
+		};
+		$this->firstPlayed = $createDateTimeImmutable(self::TAG_FIRST_PLAYED);
+		$this->lastPlayed = $createDateTimeImmutable(self::TAG_LAST_PLAYED);
 
 		if(!$this->server->getForceGamemode() && ($gameModeTag = $nbt->getTag(self::TAG_GAME_MODE)) instanceof IntTag){
 			$this->internalSetGameMode(GameModeIdMap::getInstance()->fromId($gameModeTag->getValue()) ?? GameMode::SURVIVAL); //TODO: bad hack here to avoid crashes on corrupted data
@@ -441,19 +447,19 @@ class Player extends Human implements CommandSender, ChunkListener, IPlayer{
 	/**
 	 * TODO: not sure this should be nullable
 	 */
-	public function getFirstPlayed() : ?int{
+	public function getFirstPlayed() : ?DateTimeImmutable{
 		return $this->firstPlayed;
 	}
 
 	/**
 	 * TODO: not sure this should be nullable
 	 */
-	public function getLastPlayed() : ?int{
+	public function getLastPlayed() : ?DateTimeImmutable{
 		return $this->lastPlayed;
 	}
 
 	public function hasPlayedBefore() : bool{
-		return $this->lastPlayed - $this->firstPlayed > 1; // microtime(true) - microtime(true) may have less than one millisecond difference
+		return ((int) $this->firstPlayed->diff($this->lastPlayed)->format('%s')) > 1;
 	}
 
 	/**
@@ -1636,7 +1642,7 @@ class Player extends Human implements CommandSender, ChunkListener, IPlayer{
 			return false;
 		}
 
-		$this->resetItemCooldown($item);
+		$this->resetItemCooldown($oldItem);
 		$this->returnItemsFromAction($oldItem, $item, $returnedItems);
 
 		$this->setUsingItem($item instanceof Releasable && $item->canStartUsingItem($this));
@@ -1665,7 +1671,7 @@ class Player extends Human implements CommandSender, ChunkListener, IPlayer{
 			}
 
 			$this->setUsingItem(false);
-			$this->resetItemCooldown($slot);
+			$this->resetItemCooldown($oldItem);
 
 			$slot->pop();
 			$this->returnItemsFromAction($oldItem, $slot, [$slot->getResidue()]);
@@ -1693,7 +1699,7 @@ class Player extends Human implements CommandSender, ChunkListener, IPlayer{
 			$returnedItems = [];
 			$result = $item->onReleaseUsing($this, $returnedItems);
 			if($result === ItemUseResult::SUCCESS){
-				$this->resetItemCooldown($item);
+				$this->resetItemCooldown($oldItem);
 				$this->returnItemsFromAction($oldItem, $item, $returnedItems);
 				return true;
 			}
@@ -1720,27 +1726,56 @@ class Player extends Human implements CommandSender, ChunkListener, IPlayer{
 		$ev->call();
 
 		if(!$ev->isCancelled()){
-			if($existingSlot !== -1){
-				if($existingSlot < $this->inventory->getHotbarSize()){
-					$this->inventory->setHeldItemIndex($existingSlot);
-				}else{
-					$this->inventory->swap($this->inventory->getHeldItemIndex(), $existingSlot);
-				}
-			}else{
-				$firstEmpty = $this->inventory->firstEmpty();
-				if($firstEmpty === -1){ //full inventory
-					$this->inventory->setItemInHand($item);
-				}elseif($firstEmpty < $this->inventory->getHotbarSize()){
-					$this->inventory->setItem($firstEmpty, $item);
-					$this->inventory->setHeldItemIndex($firstEmpty);
-				}else{
-					$this->inventory->swap($this->inventory->getHeldItemIndex(), $firstEmpty);
-					$this->inventory->setItemInHand($item);
-				}
-			}
+			$this->equipOrAddPickedItem($existingSlot, $item);
 		}
 
 		return true;
+	}
+
+	public function pickEntity(int $entityId) : bool{
+		$entity = $this->getWorld()->getEntity($entityId);
+		if($entity === null){
+			return true;
+		}
+
+		$item = $entity->getPickedItem();
+		if($item === null){
+			return true;
+		}
+
+		$ev = new PlayerEntityPickEvent($this, $entity, $item);
+		$existingSlot = $this->inventory->first($item);
+		if($existingSlot === -1 && ($this->hasFiniteResources() || $this->isSpectator())){
+			$ev->cancel();
+		}
+		$ev->call();
+
+		if(!$ev->isCancelled()){
+			$this->equipOrAddPickedItem($existingSlot, $item);
+		}
+
+		return true;
+	}
+
+	private function equipOrAddPickedItem(int $existingSlot, Item $item) : void{
+		if($existingSlot !== -1){
+			if($existingSlot < $this->inventory->getHotbarSize()){
+				$this->inventory->setHeldItemIndex($existingSlot);
+			}else{
+				$this->inventory->swap($this->inventory->getHeldItemIndex(), $existingSlot);
+			}
+		}else{
+			$firstEmpty = $this->inventory->firstEmpty();
+			if($firstEmpty === -1){ //full inventory
+				$this->inventory->setItemInHand($item);
+			}elseif($firstEmpty < $this->inventory->getHotbarSize()){
+				$this->inventory->setItem($firstEmpty, $item);
+				$this->inventory->setHeldItemIndex($firstEmpty);
+			}else{
+				$this->inventory->swap($this->inventory->getHeldItemIndex(), $firstEmpty);
+				$this->inventory->setItemInHand($item);
+			}
+		}
 	}
 
 	/**
@@ -2355,7 +2390,7 @@ class Player extends Human implements CommandSender, ChunkListener, IPlayer{
 		}
 
 		$nbt->setInt(self::TAG_GAME_MODE, GameModeIdMap::getInstance()->toId($this->gamemode));
-		$nbt->setLong(self::TAG_FIRST_PLAYED, $this->firstPlayed);
+		$nbt->setLong(self::TAG_FIRST_PLAYED, (int) $this->firstPlayed->format('Uv'));
 		$nbt->setLong(self::TAG_LAST_PLAYED, (int) floor(microtime(true) * 1000));
 
 		return $nbt;

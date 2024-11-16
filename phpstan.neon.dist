@@ -10,8 +10,6 @@ includes:
 	- vendor/phpstan/phpstan-strict-rules/rules.neon
 
 rules:
-	- pocketmine\phpstan\rules\DeprecatedLegacyEnumAccessRule
-	- pocketmine\phpstan\rules\DisallowEnumComparisonRule
 	- pocketmine\phpstan\rules\DisallowForeachByReferenceRule
 	- pocketmine\phpstan\rules\UnsafeForeachArrayOfStringRule
 #	- pocketmine\phpstan\rules\ThreadedSupportedTypesRule
@@ -48,8 +46,6 @@ parameters:
 		- tests/phpstan/stubs/leveldb.stub
 		- tests/phpstan/stubs/pmmpthread.stub
 	reportUnmatchedIgnoredErrors: false #no other way to silence platform-specific non-warnings
-	staticReflectionClassNamePatterns:
-		- "#^COM$#"
 	typeAliases:
 		#variadics don't work for this - mixed probably shouldn't work either, but for now it does
 		#what we actually need is something that accepts an infinite number of parameters, but in the absence of that,

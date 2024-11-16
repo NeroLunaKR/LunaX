@@ -123,7 +123,7 @@ class Human extends Living implements ProjectileSource, InventoryHolder{
 	private const TAG_PIECE_TINT_COLORS = "PieceTintColors"; //TAG_List<TAG_Compound>
 	private const TAG_IS_TRUSTED_SKIN = "IsTrustedSkin"; //TAG_Byte
 
-	public static function getNetworkTypeId() : string{ return EntityIds::PLAYER; }
+	public function getNetworkTypeId() : string{ return EntityIds::PLAYER; }
 
 	protected PlayerInventory $inventory;
 	protected PlayerOffHandInventory $offHandInventory;

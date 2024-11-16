@@ -35,7 +35,7 @@ use pocketmine\math\Facing;
  * You may use it as a type for parameters and return values, but it should not be implemented outside of this package.
  * New methods may be added without warning.
  */
-interface RuntimeDataDescriber extends RuntimeEnumDescriber{
+interface RuntimeDataDescriber{
 	public function int(int $bits, int &$value) : void;
 
 	/**
@@ -89,6 +89,11 @@ interface RuntimeDataDescriber extends RuntimeEnumDescriber{
 
 	public function straightOnlyRailShape(int &$railShape) : void;
 
+	/**
+	 * @phpstan-template T of \UnitEnum
+	 * @phpstan-param T &$case
+	 * @phpstan-param-out T $case
+	 */
 	public function enum(\UnitEnum &$case) : void;
 
 	/**

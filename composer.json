@@ -41,7 +41,7 @@
       "pocketmine/callback-validator": "^1.0.2",
       "pocketmine/color": "^0.3.0",
       "pocketmine/errorhandler": "^0.7.0",
-      "pocketmine/locale-data": "~2.19.0",
+      "pocketmine/locale-data": "~2.21.0",
       "pocketmine/log": "^0.4.0",
       "pocketmine/math": "~1.0.0",
       "pocketmine/nbt": "~1.0.0",
@@ -78,7 +78,6 @@
       "sort-packages": true
    },
    "scripts": {
-      "make-devtools": "@php -dphar.readonly=0 tests/plugins/DevTools/src/ConsoleScript.php --make ./ --relative tests/plugins/DevTools --out plugins/DevTools.phar",
       "make-server": [
          "@composer install --no-dev --classmap-authoritative --ignore-platform-reqs",
          "@php -dphar.readonly=0 build/server-phar.php"

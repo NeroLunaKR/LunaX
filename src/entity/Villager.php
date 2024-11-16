@@ -23,6 +23,8 @@ declare(strict_types=1);
 
 namespace pocketmine\entity;
 
+use pocketmine\item\Item;
+use pocketmine\item\VanillaItems;
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\network\mcpe\protocol\types\entity\EntityIds;
 use pocketmine\network\mcpe\protocol\types\entity\EntityMetadataCollection;
@@ -38,7 +40,7 @@ class Villager extends Living implements Ageable{
 
 	private const TAG_PROFESSION = "Profession"; //TAG_Int
 
-	public static function getNetworkTypeId() : string{ return EntityIds::VILLAGER; }
+	public function getNetworkTypeId() : string{ return EntityIds::VILLAGER; }
 
 	private bool $baby = false;
 	private int $profession = self::PROFESSION_FARMER;
@@ -85,6 +87,10 @@ class Villager extends Living implements Ageable{
 
 	public function isBaby() : bool{
 		return $this->baby;
+	}
+
+	public function getPickedItem() : ?Item{
+		return VanillaItems::VILLAGER_SPAWN_EGG();
 	}
 
 	protected function syncNetworkData(EntityMetadataCollection $properties) : void{

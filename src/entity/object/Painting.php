@@ -28,6 +28,7 @@ use pocketmine\entity\Entity;
 use pocketmine\entity\EntitySizeInfo;
 use pocketmine\entity\Location;
 use pocketmine\event\entity\EntityDamageByEntityEvent;
+use pocketmine\item\Item;
 use pocketmine\item\VanillaItems;
 use pocketmine\math\AxisAlignedBB;
 use pocketmine\math\Facing;
@@ -48,7 +49,7 @@ class Painting extends Entity{
 	public const TAG_DIRECTION_BE = "Direction"; //TAG_Byte
 	public const TAG_MOTIVE = "Motive"; //TAG_String
 
-	public static function getNetworkTypeId() : string{ return EntityIds::PAINTING; }
+	public function getNetworkTypeId() : string{ return EntityIds::PAINTING; }
 
 	public const DATA_TO_FACING = [
 		0 => Facing::SOUTH,
@@ -163,6 +164,10 @@ class Painting extends Entity{
 			self::FACING_TO_DATA[$this->facing],
 			$this->motive->getName()
 		));
+	}
+
+	public function getPickedItem() : ?Item{
+		return VanillaItems::PAINTING();
 	}
 
 	/**

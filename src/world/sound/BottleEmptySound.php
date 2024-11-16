@@ -21,11 +21,15 @@
 
 declare(strict_types=1);
 
-namespace pocketmine\block;
+namespace pocketmine\world\sound;
 
-/**
- * @deprecated
- */
-class WeightedPressurePlateHeavy extends WeightedPressurePlate{
+use pocketmine\math\Vector3;
+use pocketmine\network\mcpe\protocol\LevelSoundEventPacket;
+use pocketmine\network\mcpe\protocol\types\LevelSoundEvent;
 
+class BottleEmptySound implements Sound{
+
+	public function encode(Vector3 $pos) : array{
+		return [LevelSoundEventPacket::nonActorSound(LevelSoundEvent::BOTTLE_EMPTY, $pos, false)];
+	}
 }

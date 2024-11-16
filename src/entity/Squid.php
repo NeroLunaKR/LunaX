@@ -26,6 +26,7 @@ namespace pocketmine\entity;
 use pocketmine\entity\animation\SquidInkCloudAnimation;
 use pocketmine\event\entity\EntityDamageByEntityEvent;
 use pocketmine\event\entity\EntityDamageEvent;
+use pocketmine\item\Item;
 use pocketmine\item\VanillaItems;
 use pocketmine\math\Vector3;
 use pocketmine\nbt\tag\CompoundTag;
@@ -37,7 +38,7 @@ use const M_PI;
 
 class Squid extends WaterAnimal{
 
-	public static function getNetworkTypeId() : string{ return EntityIds::SQUID; }
+	public function getNetworkTypeId() : string{ return EntityIds::SQUID; }
 
 	public ?Vector3 $swimDirection = null;
 	public float $swimSpeed = 0.1;
@@ -123,5 +124,9 @@ class Squid extends WaterAnimal{
 		return [
 			VanillaItems::INK_SAC()->setCount(mt_rand(1, 3))
 		];
+	}
+
+	public function getPickedItem() : ?Item{
+		return VanillaItems::SQUID_SPAWN_EGG();
 	}
 }
