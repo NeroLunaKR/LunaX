@@ -27,8 +27,7 @@ final class ClearCameraInstruction extends CameraInstruction{
 
 	public ?bool $clear = null;
 
-	public function setClear(bool $clear) : void
-	{
+	public function setClear(bool $clear) : void{
 		$this->clear = $clear;
 	}
 }
