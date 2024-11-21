@@ -36,28 +36,23 @@ final class SetCameraInstruction extends CameraInstruction{
 	public ?CameraSetInstructionRotation $rotation = null;
 	public ?Vector3 $facingPosition = null;
 
-	public function setPreset(CameraPreset $cameraPreset) : void
-	{
+	public function setPreset(CameraPreset $cameraPreset) : void{
 		$this->cameraPreset = $cameraPreset;
 	}
 
-	public function setEase(int $type, float $duration) : void
-	{
+	public function setEase(int $type, float $duration) : void{
 		$this->ease = new CameraSetInstructionEase($type, $duration);
 	}
 
-	public function setCameraPostion(Vector3 $cameraPosition) : void
-	{
+	public function setCameraPostion(Vector3 $cameraPosition) : void{
 		$this->cameraPosition = $cameraPosition;
 	}
 
-	public function setRotation(float $pitch, float $yaw) : void
-	{
+	public function setRotation(float $pitch, float $yaw) : void{
 		$this->rotation = new CameraSetInstructionRotation($pitch, $yaw);
 	}
 
-	public function setFacingPosition(Vector3 $facingPosition) : void
-	{
+	public function setFacingPosition(Vector3 $facingPosition) : void{
 		$this->facingPosition = $facingPosition;
 	}
 }

@@ -31,13 +31,11 @@ final class FadeCameraInstruction extends CameraInstruction{
 	public ?CameraFadeInstructionTime $time = null;
 	public ?CameraFadeInstructionColor $color = null;
 
-	public function setTime(float $fadeInTime, float $stayInTime, float $fadeOutTime) : void
-	{
+	public function setTime(float $fadeInTime, float $stayInTime, float $fadeOutTime) : void{
 		$this->time = new CameraFadeInstructionTime($fadeInTime, $stayInTime, $fadeOutTime);
 	}
 
-	public function setColor(float $red, float $green, float $blue) : void
-	{
+	public function setColor(float $red, float $green, float $blue) : void{
 		$this->color = new CameraFadeInstructionColor($red, $green, $blue);
 	}
 }
