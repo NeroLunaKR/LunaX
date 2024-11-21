@@ -17,6 +17,7 @@ jobs:
   dispatch:
     name: Request approval
     runs-on: ubuntu-latest
+    if: '! github.event.pull_request.draft'
 
     steps:
       - name: Generate access token
