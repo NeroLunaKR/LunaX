@@ -24,6 +24,8 @@ declare(strict_types=1);
 namespace pocketmine\player\camera;
 
 use pocketmine\network\mcpe\protocol\types\camera\CameraPreset;
+use pocketmine\math\Vector2;
+use pocketmine\math\Vector3;
 use pocketmine\utils\RegistryTrait;
 
 /**
