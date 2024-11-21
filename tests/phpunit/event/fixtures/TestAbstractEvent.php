@@ -21,7 +21,9 @@
 
 declare(strict_types=1);
 
-namespace pocketmine\event;
+namespace pocketmine\event\fixtures;
+
+use pocketmine\event\Event;
 
 abstract class TestAbstractEvent extends Event{
 
