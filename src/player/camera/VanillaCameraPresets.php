@@ -42,10 +42,10 @@ final class VanillaCameraPresets{
 	use RegistryTrait;
 
 	protected static function setup() : void{
-		self::register("free", new CameraPreset("minecraft:free", "", 0, 0, 0, 0, 0, CameraPreset::AUDIO_LISTENER_TYPE_CAMERA, false));
-		self::register("first_person", new CameraPreset("minecraft:first_person", "", 0, 0, 0, 0, 0, CameraPreset::AUDIO_LISTENER_TYPE_PLAYER, false));
-		self::register("third_person", new CameraPreset("minecraft:third_person", "", 0, 0, 0, 0, 0, CameraPreset::AUDIO_LISTENER_TYPE_PLAYER, false));
-		self::register("third_person_front", new CameraPreset("minecraft:third_person_front", "", 0, 0, 0, 0, 0, CameraPreset::AUDIO_LISTENER_TYPE_PLAYER, false));
+		self::register("free", self::getCameraPresetData("minecraft:free", CameraPreset::AUDIO_LISTENER_TYPE_CAMERA));
+		self::register("first_person", self::getCameraPresetData("minecraft:first_person", CameraPreset::AUDIO_LISTENER_TYPE_PLAYER));
+		self::register("third_person", self::getCameraPresetData("minecraft:third_person", CameraPreset::AUDIO_LISTENER_TYPE_PLAYER));
+		self::register("third_person_front", self::getCameraPresetData("minecraft:third_person_front", CameraPreset::AUDIO_LISTENER_TYPE_PLAYER));
 	}
 
 	protected static function register(string $name, CameraPreset $member) : void{
@@ -54,5 +54,23 @@ final class VanillaCameraPresets{
 
 	public static function getAll() : array{
 		return [self::FREE(), self::FIRST_PERSON(), self::THIRD_PERSON(), self::THIRD_PERSON_FRONT()];
+	}
+
+	private static function getCameraPresetData(string $preset_type, int $listener_type) : CameraPreset{
+		return new CameraPreset(
+			$preset_type,
+			"",
+			0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+			false,
+			new Vector2(0, 0),
+			new Vector2(0, 0),
+			false,
+			new Vector2(0, 0),
+			new Vector3(0, 0, 0),
+			0.0,
+			$listener_type,
+			false,
+			false
+		);
 	}
 }
