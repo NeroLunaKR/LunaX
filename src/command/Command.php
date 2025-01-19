@@ -47,10 +47,16 @@ abstract class Command{
 	private string $nextLabel;
 	private string $label;
 
-	/** @var string[] */
+	/**
+	 * @var string[]
+	 * @phpstan-var list<string>
+	 */
 	private array $aliases = [];
 
-	/** @var string[] */
+	/**
+	 * @var string[]
+	 * @phpstan-var list<string>
+	 */
 	private array $activeAliases = [];
 
 	private ?CommandMap $commandMap = null;
@@ -68,6 +74,7 @@ abstract class Command{
 
 	/**
 	 * @param string[] $aliases
+	 * @phpstan-param list<string> $aliases
 	 */
 	public function __construct(string $name, Translatable|string $description = "", Translatable|string|null $usageMessage = null, array $aliases = [], array $overloads = []){
 		$this->name = $name;
@@ -189,6 +196,7 @@ abstract class Command{
 
 	/**
 	 * @return string[]
+	 * @phpstan-return list<string>
 	 */
 	public function getAliases() : array{
 		return $this->activeAliases;
@@ -208,6 +216,7 @@ abstract class Command{
 
 	/**
 	 * @param string[] $aliases
+	 * @phpstan-param list<string> $aliases
 	 */
 	public function setAliases(array $aliases) : void{
 		$this->aliases = $aliases;
